@@ -1,0 +1,52 @@
+    start : program
+    program : (macro)* (decl)+
+    decl_set : decl decl_set | decl
+    macro: "import" STRING
+    decl : variable_decl | function_decl | class_decl | interface_decl
+    variable_decl : variable ";"
+    variable : type IDENT
+    type : TYPE | IDENT | type "[]" | type "[  ]"
+    function_decl : type IDENT "("formals")" stmt_block  | "void" IDENT "("formals")" stmt_block
+    formals : variable |  variable "," formals |
+    class_decl : "class" IDENT ("extends" IDENT)?  ("implements" IDENT (","IDENT)*)?  "{"(field)*"}"
+    field : (ACCESS)? variable_decl | (ACCESS)? function_decl
+    interface_decl : "interface" IDENT "{"(prototype)*"}"
+    prototype : type IDENT "(" formals ")" ";" | "void" IDENT "(" formals ")" ";"
+    stmt_block : "{" (variable_decl)*  (stmt)* "}"
+    stmt :  (expr)? ";" | if_stmt  | while_stmt |  for_stmt | break_stmt | continue_stmt  | return_stmt  | print_stmt  | stmt_block
+    if_stmt : "if" "(" expr ")" stmt ("else" stmt)?
+    while_stmt : "while" "(" expr ")" stmt
+    for_stmt : "for" "(" (expr)? ";" expr ";" (expr)? ")" stmt
+    return_stmt : "return" (expr)? ";"
+    break_stmt : "break" ";"
+    print_stmt : "Print" "(" expr (","expr)* ")" ";"
+    continue_stmt : "continue" ";"
+
+
+    expr : l_value "=" expr | constant | l_value | "this" | call | "(" expr ")" | expr "+" expr | expr "-" expr
+                    | expr "*" expr | expr "/" expr |  expr "%" expr | expr "/=" expr |"-" expr | expr "<=" expr | expr "<" expr
+                    | expr ">=" expr| expr ">" expr |  expr "==" expr | expr "!=" expr | expr "+=" expr  | expr "&&" expr | expr "||" expr
+                    | "!" expr | "ReadInteger" "(" ")" |   "ReadLine" "(" ")" | "new" IDENT
+                    | "NewArray" "(" expr "," type ")"  | "itod" "(" expr ")" | "dtoi" "(" expr ")" | "itob" "(" expr ")" | "btoi" "(" expr ")"
+    l_value : IDENT |  expr  "." IDENT | expr "[" expr "]"
+    call : IDENT  "(" actuals ")" |  expr  "."  IDENT  "(" actuals ")"
+    actuals :  expr (","expr)* |
+    constant : INT | DOUBLE  | BOOL |  STRING | "null"
+    DOUBLE : /\d+\.\d*((E|e)(\+|-)?\d+)?|\d+\.\d+/
+    INT: /0[xX][a-fA-F0-9]+/ | /[0-9]+/
+    ACCESS : "private" | "protected" | "public"
+
+    BOOL : /((true)|(false))(xabc1235ll)*/
+    TYPE : "int" | "double" | "bool" | "string"
+    STRING : /"(\\\"|[^"])*"/
+    IDENT :  /(?!((true)|(false)|(void)|(int)|(private)|(protected)|(public)|(double)|(itod)|(dtoi)|(bool)|(string)|(class)|(interface)|(null)|(itob)|(this)|(extends)|(implements)|(for)|(btoi)|(while)|(if)|(else)|(return)|(break)|(continue)|(new)|(NewArray)|(Print)|(ReadInteger)|(ReadLine))([^_a-zA-Z0-9]|$))[a-zA-Z][_a-zA-Z0-9]*/
+
+    INLINE_COMMENT : /\/\/.*/
+    COMMENT : /\/\*.*(\*\/)/
+    MULTILINE_COMMENT : /\/\*.*/
+    MULTILINE_COMMENTS: /\/\*([^\*\/])*\*\//
+    %import common.WS -> WHITESPACE
+    %ignore WHITESPACE
+    %ignore INLINE_COMMENT
+    %ignore MULTILINE_COMMENT
+    %ignore MULTILINE_COMMENTS
